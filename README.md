@@ -15,7 +15,7 @@ Allowed options:
   -s [ --split ]        split matrix into row vectors
 ```
 
-Basically, there are two main way to operate with cppsim.
+There are two main ways to operate with cppsim.
 It is possible to compute the similarity matrix or split it into row vectors.
 
 The former method needs the input and output matrices, as shown in the following example.

@@ -9,7 +9,7 @@
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
 
-#include "cnpy.h"
+#include "cnpy/cnpy.h"
 
 double cosine_similarity(double *A, double *B, unsigned int size);
 void users_sims(double** sims, double** users, double *u, unsigned long i, unsigned long x, unsigned long y);

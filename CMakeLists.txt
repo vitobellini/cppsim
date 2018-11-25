@@ -4,7 +4,7 @@ project(cppsim)
 set(CMAKE_CXX_STANDARD 11)
 
 set(SOURCE_FILES main.cpp)
-add_executable(cppsim ${SOURCE_FILES} cnpy.cpp)
+add_executable(cppsim ${SOURCE_FILES} cnpy/cnpy.cpp)
 
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)

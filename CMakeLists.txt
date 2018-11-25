@@ -16,7 +16,7 @@ if ( ZLIB_FOUND )
     target_link_libraries( cppsim ${ZLIB_LIBRARIES} )
 endif( ZLIB_FOUND )
 
-find_package(Boost 1.68.0 COMPONENTS system thread)
+find_package(Boost 1.68.0 COMPONENTS system filesystem thread program_options)
 
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})

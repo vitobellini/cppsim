@@ -6,17 +6,72 @@
 #include <boost/asio.hpp>
 #include <boost/asio/thread_pool.hpp>
 #include <boost/thread.hpp>
+#include <boost/program_options.hpp>
+#include <boost/filesystem.hpp>
 
 #include "cnpy.h"
 
 double cosine_similarity(double *A, double *B, unsigned int size);
 void users_sims(double** sims, double** users, double *u, unsigned long i, unsigned long x, unsigned long y);
-void user_sims(double** sims, double** users, double *u, unsigned long i, unsigned long x, unsigned long y);
+void user_sims(std::string dir, double** users, double *u, unsigned long i, unsigned long x, unsigned long y);
 
-int main() {
-    std::cout << "Reading numpy matrix..." << std::endl;
+namespace po = boost::program_options;
+namespace fs = boost::filesystem;
 
-    cnpy::NpyArray m = cnpy::npy_load("A.npy");
+int main(int argc, char* argv[]) {
+
+    std::string ifile;
+    std::string ofile;
+    std::string dir_path;
+    bool split_matrix = false;
+
+    po::options_description desc("Allowed options");
+    desc.add_options()
+            ("help,h", "print usage message")
+            ("input,i", po::value(&ifile), "pathname for input matrix")
+            ("output,o", po::value(&ofile), "pathname for output matrix")
+            ("dir,d", po::value(&dir_path), "output directory for row vectors")
+            ("split,s", po::bool_switch(&split_matrix), "split matrix into row vectors")
+            ;
+
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
+
+    if (vm.count("help")) {
+        std::cout << desc << std::endl;
+        exit(EXIT_SUCCESS);
+    }
+
+    if (!vm.count("input")) {
+        std::cout << desc << std::endl;
+        exit(EXIT_SUCCESS);
+    }
+
+    if(split_matrix && !vm.count("dir")) {
+        std::cout << desc << std::endl;
+        exit(EXIT_SUCCESS);
+    }
+
+    if(!split_matrix && !vm.count("output")) {
+        std::cout << desc << std::endl;
+        exit(EXIT_SUCCESS);
+    }
+
+    if (vm.count("dir")) {
+        fs::path dir(dir_path);
+
+        if(!fs::is_directory(dir) && !fs::create_directory(dir)) {
+            std::cerr << "Unable to create directory: " << dir_path << std::endl;
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    unsigned hw_concurrency = std::thread::hardware_concurrency();
+
+    std::cout << "Reading numpy matrix: " << ifile << std::endl;
+
+    cnpy::NpyArray m = cnpy::npy_load(ifile);
     std::cout << "Matrix shape: " << m.shape[0] << ", " << m.shape[1] << std::endl;
 
     unsigned long x = m.shape[0];
@@ -26,16 +81,19 @@ int main() {
     assert(m.word_size == sizeof(double));
 
     double** users = new double*[x];
-    for(int i=0; i<x; i++) {
+    for (int i = 0; i < x; i++) {
         users[i] = new double[y];
     }
 
+
     std::cout << "Allocating matrix similarities" << std::endl;
 
-    double** sims = new double*[x];
-    for(int i=0; i<x; i++) {
-        sims[i] = new double[x];
-        //std::fill(sims[0], sims[x], 0);
+    double** sims = NULL;
+    if(!split_matrix) {
+        sims = new double*[x];
+        for (int i = 0; i < x; i++) {
+            sims[i] = new double[x];
+        }
     }
 
     double* A = m.data<double>();
@@ -48,23 +106,33 @@ int main() {
         users[row][col] = A[i];
     }
 
-    boost::asio::thread_pool pool(12);
+    boost::asio::thread_pool pool(hw_concurrency);
 
     std::cout << "Computing similarities..." << std::endl;
 
     for(unsigned int i=0; i<x; i++) {
-        boost::asio::post(pool, boost::bind(user_sims, boost::cref(sims), boost::cref(users), boost::cref(users[i]), i, x, y));
+        if(split_matrix) {
+            boost::asio::post(pool, boost::bind(user_sims, boost::cref(dir_path), boost::cref(users), boost::cref(users[i]), i, x, y));
+        } else {
+            boost::asio::post(pool, boost::bind(users_sims, boost::cref(sims), boost::cref(users), boost::cref(users[i]), i, x, y));
+        }
     }
 
     pool.join();
 
-    //std::cout << "Writing sims.npy" << std::endl;
-    //cnpy::npy_save("sims.npy", (const double*) &sims[0],{x,x},"w");
+    if(!split_matrix) {
+        std::cout << "Writing " << ofile << ".npy" << std::endl;
+        cnpy::npy_save(ofile, (const double*) &sims[0],{x,x},"w");
+        delete[] sims;
+        delete[] users;
+    } else {
+        std::cout << "Done" << std::endl;
+    }
 
     return 0;
 }
 
-void user_sims(double** sims, double** users, double *u, unsigned long i, unsigned long x, unsigned long y) {
+void user_sims(std::string dir, double** users, double *u, unsigned long i, unsigned long x, unsigned long y) {
 
     double *s = new double[x];
 
@@ -73,7 +141,7 @@ void user_sims(double** sims, double** users, double *u, unsigned long i, unsign
     }
 
     std::stringstream fmt;
-    fmt << "sims/" << i << ".npy";
+    fmt << dir << "/" << i << ".npy";
     std::string filename = fmt.str();
     cnpy::npy_save(filename, (const double*) &s[0],{x},"w");
 
@@ -81,12 +149,9 @@ void user_sims(double** sims, double** users, double *u, unsigned long i, unsign
 }
 
 void users_sims(double** sims, double** users, double *u, unsigned long i, unsigned long x, unsigned long y) {
-
     for(int j=0; j<x; j++) {
         sims[i][j] = cosine_similarity(u, users[j], y);
     }
-
-    std::cout << "User: " << i+1 << "/" << x << std::endl;
 }
 
 double cosine_similarity(double *A, double *B, unsigned int size) {

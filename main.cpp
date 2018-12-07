@@ -2,6 +2,7 @@
 #include <cmath>
 #include <string>
 #include <future>
+#include <iterator>
 
 #include <boost/asio.hpp>
 #include <boost/asio/thread_pool.hpp>
@@ -25,13 +26,18 @@ int main(int argc, char* argv[]) {
     std::string dir_path;
     bool split_matrix = false;
 
+    std::string users_path;
+    bool index_user = false;
+    std::vector<unsigned int> users_index;
+
     po::options_description desc("Allowed options");
     desc.add_options()
             ("help,h", "print usage message")
-            ("input,i", po::value(&ifile), "pathname for input matrix")
-            ("output,o", po::value(&ofile), "pathname for output matrix")
+            ("input,i", po::value(&ifile), "path for input matrix file")
+            ("output,o", po::value(&ofile), "path for output matrix file")
             ("dir,d", po::value(&dir_path), "output directory for row vectors")
             ("split,s", po::bool_switch(&split_matrix), "split matrix into row vectors")
+            ("users,u", po::value(&users_path), "path for users index file to compute similarities")
             ;
 
     po::variables_map vm;
@@ -65,6 +71,25 @@ int main(int argc, char* argv[]) {
             std::cerr << "Unable to create directory: " << dir_path << std::endl;
             exit(EXIT_FAILURE);
         }
+    }
+
+    if (vm.count("users")) {
+        index_user = true;
+
+        std::ifstream inputFile(users_path);
+
+        while (!inputFile.eof()) {
+            unsigned int x;
+            inputFile >> x;
+            users_index.push_back(x);
+        }
+
+        if (!users_index.size()) {
+            std::cerr << "User indexes file is empty!" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+
+        inputFile.close();
     }
 
     unsigned hw_concurrency = std::thread::hardware_concurrency();
@@ -110,11 +135,24 @@ int main(int argc, char* argv[]) {
 
     std::cout << "Computing similarities..." << std::endl;
 
-    for(unsigned int i=0; i<x; i++) {
-        if(split_matrix) {
-            boost::asio::post(pool, boost::bind(user_sims, boost::cref(dir_path), boost::cref(users), boost::cref(users[i]), i, x, y));
-        } else {
-            boost::asio::post(pool, boost::bind(users_sims, boost::cref(sims), boost::cref(users), boost::cref(users[i]), i, x, y));
+    if (!index_user) {
+        // Compute full matrix similarities
+        for (unsigned int i = 0; i < x; i++) {
+            if (split_matrix) {
+                boost::asio::post(pool, boost::bind(user_sims, boost::cref(dir_path), boost::cref(users),
+                                                    boost::cref(users[i]), i, x, y));
+            } else {
+                boost::asio::post(pool,
+                                  boost::bind(users_sims, boost::cref(sims), boost::cref(users), boost::cref(users[i]),
+                                              i, x, y));
+            }
+        }
+    } else {
+        // Compute similarities only for the provided indexes
+        for (unsigned int i = 0; i<users_index.size(); i++) {
+            unsigned int u = users_index.at(i);
+            boost::asio::post(pool, boost::bind(user_sims, boost::cref(dir_path), boost::cref(users),
+                                                boost::cref(users[u]), u, x, y));
         }
     }
 

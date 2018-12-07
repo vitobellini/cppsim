@@ -13,6 +13,7 @@ Allowed options:
   -o [ --output ] arg   pathname for output matrix
   -d [ --dir ] arg      output directory for row vectors
   -s [ --split ]        split matrix into row vectors
+  -u [ --users ]        path for users index file to compute similarities
 ```
 
 There are two main ways to operate with cppsim.
@@ -29,3 +30,5 @@ The latter splits the matrix similarity into row vectors, one for each file. Thi
 ```
 $ ./cppsim -i input.npy -s -d similarities 
 ```
+
+If a users index file is specified, cppsim must be run with the -s option. In this case, it will compute similarities only for the specified users.

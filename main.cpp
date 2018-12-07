@@ -30,6 +30,9 @@ int main(int argc, char* argv[]) {
     bool index_user = false;
     std::vector<unsigned int> users_index;
 
+    const unsigned int hw_max_concurrency = std::thread::hardware_concurrency();
+    unsigned int hw_concurrency = hw_max_concurrency;
+
     po::options_description desc("Allowed options");
     desc.add_options()
             ("help,h", "print usage message")
@@ -38,6 +41,7 @@ int main(int argc, char* argv[]) {
             ("dir,d", po::value(&dir_path), "output directory for row vectors")
             ("split,s", po::bool_switch(&split_matrix), "split matrix into row vectors")
             ("users,u", po::value(&users_path), "path for users index file to compute similarities")
+            ("threads,t", po::value(&hw_concurrency), "threads")
             ;
 
     po::variables_map vm;
@@ -73,6 +77,14 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    if (vm.count("threads")) {
+        if (hw_concurrency > hw_max_concurrency) {
+            hw_concurrency = hw_max_concurrency;
+        }
+
+        std::cout << "Threads: " << hw_max_concurrency << std::endl;
+    }
+
     if (vm.count("users")) {
         index_user = true;
 
@@ -91,8 +103,6 @@ int main(int argc, char* argv[]) {
 
         inputFile.close();
     }
-
-    unsigned hw_concurrency = std::thread::hardware_concurrency();
 
     std::cout << "Reading numpy matrix: " << ifile << std::endl;
 

@@ -14,6 +14,7 @@ Allowed options:
   -d [ --dir ] arg      output directory for row vectors
   -s [ --split ]        split matrix into row vectors
   -u [ --users ]        path for users index file to compute similarities
+  -t [ --threads ] arg  threads
 ```
 
 There are two main ways to operate with cppsim.

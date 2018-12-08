@@ -1,5 +1,4 @@
 #include <iostream>
-#include <cmath>
 #include <string>
 #include <future>
 #include <iterator>
@@ -12,15 +11,12 @@
 
 #include "cnpy/cnpy.h"
 
-double cosine_similarity(double *A, double *B, unsigned int size);
-void users_sims(double** sims, double** users, double *u, unsigned long i, unsigned long x, unsigned long y);
-void user_sims(std::string dir, double** users, double *u, unsigned long i, unsigned long x, unsigned long y);
+#include "src/similarity.h"
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 
 int main(int argc, char* argv[]) {
-
     std::string ifile;
     std::string ofile;
     std::string dir_path;
@@ -45,7 +41,9 @@ int main(int argc, char* argv[]) {
             ;
 
     po::variables_map vm;
-    po::store(po::parse_command_line(argc, argv, desc), vm);
+    //po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::store(po::command_line_parser(argc, argv).options(desc).allow_unregistered().run(), vm);
+
     po::notify(vm);
 
     if (vm.count("help")) {
@@ -120,7 +118,6 @@ int main(int argc, char* argv[]) {
         users[i] = new double[y];
     }
 
-
     std::cout << "Allocating matrix similarities" << std::endl;
 
     double** sims = NULL;
@@ -169,7 +166,7 @@ int main(int argc, char* argv[]) {
     pool.join();
 
     if(!split_matrix) {
-        std::cout << "Writing " << ofile << ".npy" << std::endl;
+        std::cout << "Writing " << ofile << std::endl;
         cnpy::npy_save(ofile, (const double*) &sims[0],{x,x},"w");
         delete[] sims;
         delete[] users;
@@ -178,46 +175,4 @@ int main(int argc, char* argv[]) {
     }
 
     return 0;
-}
-
-void user_sims(std::string dir, double** users, double *u, unsigned long i, unsigned long x, unsigned long y) {
-
-    double *s = new double[x];
-
-    for(int j=0; j<x; j++) {
-        s[j] = cosine_similarity(u, users[j], y);
-    }
-
-    std::stringstream fmt;
-    fmt << dir << "/" << i << ".npy";
-    std::string filename = fmt.str();
-    cnpy::npy_save(filename, (const double*) &s[0],{x},"w");
-
-    delete[] s;
-}
-
-void users_sims(double** sims, double** users, double *u, unsigned long i, unsigned long x, unsigned long y) {
-    for(int j=0; j<x; j++) {
-        sims[i][j] = cosine_similarity(u, users[j], y);
-    }
-}
-
-double cosine_similarity(double *A, double *B, unsigned int size) {
-    double mul = 0.0;
-    double d_a = 0.0;
-    double d_b = 0.0 ;
-
-    for(unsigned int i = 0; i < size; ++i) {
-        mul += *A * *B;
-        d_a += *A * *A;
-        d_b += *B * *B;
-        A++;
-        B++;
-    }
-
-    if (d_a == 0.0f || d_b == 0.0f) {
-        return 0.0f;
-    }
-
-    return mul / (sqrt(d_a) * sqrt(d_b));
 }

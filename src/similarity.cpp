@@ -25,10 +25,10 @@ void user_sims(std::string dir, double** users, double *u, unsigned long i, unsi
 }
 
 void users_sims(double** sims, double** users, double *u, unsigned long i, unsigned long x, unsigned long y) {
-    // triang: for j <= i
-    for(int j=0; j<x; j++) {
-        sims[i][j] = cosine_similarity(u, users[j], y);
-        // triang: sims[j][i] = s
+    for(int j=0; j<=i; j++) {
+        const double s = cosine_similarity(u, users[j], y);
+        sims[i][j] = s;
+        sims[j][i] = s;
     }
 }
 

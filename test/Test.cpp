@@ -55,8 +55,7 @@ BOOST_AUTO_TEST_SUITE(sims)
         }
 
         for(unsigned long i=0; i<x; i++) {
-            double *u = users[i];
-            users_sims(sims, users, u, i, x, y);
+            users_sims(sims, users, i, x, y);
         }
 
         for(unsigned int i=0; i<x; i++) {

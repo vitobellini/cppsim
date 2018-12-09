@@ -149,12 +149,12 @@ int main(int argc, char* argv[]) {
                                                     boost::cref(users[i]), i, x, y));
             } else {
                 boost::asio::post(pool,
-                                  boost::bind(users_sims, boost::cref(sims), boost::cref(users), boost::cref(users[i]),
+                                  boost::bind(users_sims, boost::cref(sims), boost::cref(users),
                                               i, x, y));
             }
         }
     } else {
-        // Compute similarities only for the provided indexes
+        // Compute similarities only for the provided row indexes
         for (unsigned int i = 0; i<users_index.size(); i++) {
             unsigned int u = users_index.at(i);
             boost::asio::post(pool, boost::bind(user_sims, boost::cref(dir_path), boost::cref(users),

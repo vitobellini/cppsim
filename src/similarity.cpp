@@ -24,15 +24,15 @@ void user_sims(std::string dir, double** users, double *u, unsigned long i, unsi
     delete[] s;
 }
 
-void users_sims(double** sims, double** users, double *u, unsigned long i, unsigned long x, unsigned long y) {
+void users_sims(double** sims, double** users, unsigned long i, unsigned long x, unsigned long y) {
     for(int j=0; j<=i; j++) {
-        const double s = cosine_similarity(u, users[j], y);
+        const double s = cosine_similarity(users[i], users[j], y);
         sims[i][j] = s;
         sims[j][i] = s;
     }
 }
 
-double cosine_similarity(double *A, double *B, unsigned int size) {
+double cosine_similarity(double *A, double *B, unsigned long size) {
     double mul = 0.0;
     double d_a = 0.0;
     double d_b = 0.0 ;

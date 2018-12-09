@@ -16,6 +16,9 @@ set(Boost_USE_STATIC_RUNTIME OFF)
 add_subdirectory (src)
 add_subdirectory (test)
 
+add_library (Similarity src/similarity.cpp src/similarity.h)
+add_library (cnpy cnpy/cnpy.cpp)
+
 enable_testing ()
 
 add_test (NAME MyTest COMMAND Test)

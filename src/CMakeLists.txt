@@ -1,7 +1,5 @@
 set(SOURCE_FILES ../main.cpp)
 
-add_library (Similarity similarity.cpp similarity.h)
-add_library (cnpy ../cnpy/cnpy.cpp)
 add_executable(cppsim ${SOURCE_FILES})
 target_link_libraries (cppsim cnpy Similarity)
 

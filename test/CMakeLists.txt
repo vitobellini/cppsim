@@ -19,9 +19,6 @@ if(Boost_FOUND)
     target_link_libraries(Test ${Boost_LIBRARIES})
 endif()
 
-
-#include_directories (${TEST_SOURCE_DIR})
-
 add_definitions (-DBOOST_TEST_DYN_LINK)
 
 target_link_libraries(Test cnpy)

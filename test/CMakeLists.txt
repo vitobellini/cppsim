@@ -24,8 +24,8 @@ endif()
 
 add_definitions (-DBOOST_TEST_DYN_LINK)
 
-target_link_libraries(Test Similarity)
 target_link_libraries(Test cnpy)
+target_link_libraries(Test Similarity)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/input.npy DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/output.npy DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

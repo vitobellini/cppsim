@@ -10,7 +10,7 @@ if ( ZLIB_FOUND )
     target_link_libraries( Test ${ZLIB_LIBRARIES} )
 endif()
 
-find_package(Boost 1.67.0 COMPONENTS system filesystem thread unit_test_framework REQUIRED)
+find_package(Boost 1.66.0 COMPONENTS system filesystem thread unit_test_framework REQUIRED)
 
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
@@ -19,5 +19,5 @@ endif()
 
 add_definitions (-DBOOST_TEST_DYN_LINK)
 
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/input.npy DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/output.npy DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/input.npy DESTINATION ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/output.npy DESTINATION ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})

@@ -9,7 +9,7 @@ if ( ZLIB_FOUND )
     target_link_libraries( cppsim ${ZLIB_LIBRARIES} )
 endif()
 
-find_package(Boost 1.67.0 COMPONENTS system filesystem thread program_options)
+find_package(Boost 1.66.0 COMPONENTS system filesystem thread program_options)
 
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})

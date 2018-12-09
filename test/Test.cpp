@@ -6,7 +6,7 @@
 #include <boost/test/unit_test.hpp>
 #include <iostream>
 
-#include "similarity.h"
+#include "../src/similarity.h"
 #include "../cnpy/cnpy.h"
 
 using namespace boost::unit_test;

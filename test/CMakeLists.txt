@@ -3,7 +3,6 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 
 add_executable (Test Test.cpp)
-#add_executable(Test ${SOURCE_FILES})
 
 find_package( ZLIB REQUIRED )
 if ( ZLIB_FOUND )

@@ -1,6 +1,8 @@
 set(TEST_FILES ../test/Test.cpp)
 
 add_executable (Test ${TEST_FILES})
+target_link_libraries(Test cnpy)
+target_link_libraries(Test Similarity)
 
 find_package( ZLIB REQUIRED )
 if ( ZLIB_FOUND )
@@ -16,9 +18,6 @@ if(Boost_FOUND)
 endif()
 
 add_definitions (-DBOOST_TEST_DYN_LINK)
-
-target_link_libraries(Test cnpy)
-target_link_libraries(Test Similarity)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/input.npy DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/output.npy DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

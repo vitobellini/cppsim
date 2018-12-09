@@ -5,10 +5,6 @@ add_library (cnpy ../cnpy/cnpy.cpp)
 add_executable(cppsim ${SOURCE_FILES})
 target_link_libraries (cppsim cnpy Similarity)
 
-set(Boost_USE_STATIC_LIBS OFF)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
-
 find_package( ZLIB REQUIRED )
 if ( ZLIB_FOUND )
     include_directories( ${ZLIB_INCLUDE_DIRS} )

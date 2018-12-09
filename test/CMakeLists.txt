@@ -1,7 +1,3 @@
-set(Boost_USE_STATIC_LIBS OFF)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
-
 set(TEST_FILES ../test/Test.cpp)
 
 add_executable (Test ${TEST_FILES})

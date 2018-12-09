@@ -21,4 +21,4 @@ add_library (cnpy cnpy/cnpy.cpp)
 
 enable_testing ()
 
-add_test (NAME MyTest COMMAND Test)
+add_test (NAME cppsimTest COMMAND Test WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})

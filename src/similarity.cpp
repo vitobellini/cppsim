@@ -15,10 +15,10 @@ void user_sims(std::string dir, double* m, unsigned long i, unsigned long x, uns
     double *s = new double[x];
 
     double *u = new double[y];
-    memcpy(u, m+(i*y), sizeof(double)*y);
+    std::memcpy(u, m+(i*y), sizeof(double)*y);
 
     for(int j=0; j<x; j++) {
-        memcpy(userA, m+(j*y), sizeof(double)*y);
+        std::memcpy(userA, m+(j*y), sizeof(double)*y);
         s[j] = cosine_similarity(u, userA, y);
     }
 
@@ -36,10 +36,10 @@ void users_sims(double** sims, double* m, unsigned long i, unsigned long x, unsi
     double *userA = new double[y];
     double *userB = new double[y];
 
-    memcpy(userA, m+(i*y), sizeof(double)*y);
+    std::memcpy(userA, m+(i*y), sizeof(double)*y);
 
     for(int j=0; j<=i; j++) {
-        memcpy(userB, m+(j*y), sizeof(double)*y);
+        std::memcpy(userB, m+(j*y), sizeof(double)*y);
 
         const double s = cosine_similarity(userA, userB, y);
         sims[i][j] = s;

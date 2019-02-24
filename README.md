@@ -1,6 +1,11 @@
 # cppsim
 Fast multi-threaded memory optimized tool to compute cosine similarity on very large matrices imported from NumPy
 
+## Requirements
+
+* CMake 3.7
+* Boost lib 1.66
+
 ## Run
 
 Using cppsim is very straightforward.

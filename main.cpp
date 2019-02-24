@@ -124,8 +124,6 @@ int main(int argc, char* argv[]) {
 
     double* A = m.data<double>();
 
-    std::cout << "Obtaining raw data" << std::endl;
-
     boost::asio::thread_pool pool(hw_concurrency);
 
     std::cout << "Computing similarities..." << std::endl;

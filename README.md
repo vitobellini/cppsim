@@ -38,7 +38,7 @@ The former method needs the input and output matrices, as shown in the following
 $ ./cppsim -i input.npy -o output.npy
 ```
 
-The latter splits the matrix similarity into row vectors, one for each file. This method is preferred when the RAM you have is not enough to maintain the full similarity matrix. To split the output matrix into row vectors, run cppsim with -s arguments and specify with -d the directory in which to store the row vectors. 
+The latter splits the matrix similarity into row vectors, one for each file. This method is preferred when the RAM you have is not enough to maintain the full similarity matrix. To split the output matrix into row vectors, run cppsim with -s parameter and specify with -d the directory in which to store the row vectors. 
 
 ```
 $ ./cppsim -i input.npy -s -d similarities 

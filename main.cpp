@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
 
     std::string users_path;
     bool index_user = false;
-    std::vector<unsigned int> users_index;
+    std::vector<unsigned long> users_index;
 
     const unsigned int hw_max_concurrency = std::thread::hardware_concurrency();
     unsigned int hw_concurrency = hw_max_concurrency;
@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
         std::ifstream inputFile(users_path);
 
         while (!inputFile.eof()) {
-            unsigned int x;
+            unsigned long x;
             inputFile >> x;
             users_index.push_back(x);
         }
@@ -112,11 +112,6 @@ int main(int argc, char* argv[]) {
     // Match word size
     assert(m.word_size == sizeof(double));
 
-    double** users = new double*[x];
-    for (int i = 0; i < x; i++) {
-        users[i] = new double[y];
-    }
-
     std::cout << "Allocating matrix similarities" << std::endl;
 
     double** sims = NULL;
@@ -131,12 +126,6 @@ int main(int argc, char* argv[]) {
 
     std::cout << "Obtaining raw data" << std::endl;
 
-    for(unsigned long i=0; i<x*y; i++) {
-        unsigned long row = i/y;
-        unsigned long col = i % y;
-        users[row][col] = A[i];
-    }
-
     boost::asio::thread_pool pool(hw_concurrency);
 
     std::cout << "Computing similarities..." << std::endl;
@@ -145,20 +134,20 @@ int main(int argc, char* argv[]) {
         // Compute full matrix similarities
         for (unsigned int i = 0; i < x; i++) {
             if (split_matrix) {
-                boost::asio::post(pool, boost::bind(user_sims, boost::cref(dir_path), boost::cref(users),
-                                                    boost::cref(users[i]), i, x, y));
+                boost::asio::post(pool, boost::bind(user_sims, boost::cref(dir_path), boost::cref(A),
+                        i, x, y));
             } else {
                 boost::asio::post(pool,
-                                  boost::bind(users_sims, boost::cref(sims), boost::cref(users),
-                                              i, x, y));
+                        boost::bind(users_sims, boost::cref(sims), boost::cref(A),
+                                i, x, y));
             }
         }
     } else {
         // Compute similarities only for the provided row indexes
         for (unsigned int i = 0; i<users_index.size(); i++) {
-            unsigned int u = users_index.at(i);
-            boost::asio::post(pool, boost::bind(user_sims, boost::cref(dir_path), boost::cref(users),
-                                                boost::cref(users[u]), u, x, y));
+            unsigned long u = users_index.at(i);
+            boost::asio::post(pool, boost::bind(user_sims, boost::cref(dir_path), boost::cref(A),
+                                                u, x, y));
         }
     }
 
@@ -168,7 +157,6 @@ int main(int argc, char* argv[]) {
         std::cout << "Writing " << ofile << std::endl;
         cnpy::npy_save(ofile, (const double*) &sims[0],{x,x},"w");
         delete[] sims;
-        delete[] users;
     } else {
         std::cout << "Done" << std::endl;
     }

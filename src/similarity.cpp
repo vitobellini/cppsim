@@ -8,12 +8,18 @@
 
 #include "../cnpy/cnpy.h"
 
-void user_sims(std::string dir, double** users, double *u, unsigned long i, unsigned long x, unsigned long y) {
+void user_sims(std::string dir, double* m, unsigned long i, unsigned long x, unsigned long y) {
+
+    double *userA = new double[y];
 
     double *s = new double[x];
 
+    double *u = new double[y];
+    memcpy(u, m+(i*y), sizeof(double)*y);
+
     for(int j=0; j<x; j++) {
-        s[j] = cosine_similarity(u, users[j], y);
+        memcpy(userA, m+(j*y), sizeof(double)*y);
+        s[j] = cosine_similarity(u, userA, y);
     }
 
     std::stringstream fmt;
@@ -22,14 +28,26 @@ void user_sims(std::string dir, double** users, double *u, unsigned long i, unsi
     cnpy::npy_save(filename, (const double*) &s[0],{x},"w");
 
     delete[] s;
+    delete[] userA;
+    delete[] u;
 }
 
-void users_sims(double** sims, double** users, unsigned long i, unsigned long x, unsigned long y) {
+void users_sims(double** sims, double* m, unsigned long i, unsigned long x, unsigned long y) {
+    double *userA = new double[y];
+    double *userB = new double[y];
+
+    memcpy(userA, m+(i*y), sizeof(double)*y);
+
     for(int j=0; j<=i; j++) {
-        const double s = cosine_similarity(users[i], users[j], y);
+        memcpy(userB, m+(j*y), sizeof(double)*y);
+
+        const double s = cosine_similarity(userA, userB, y);
         sims[i][j] = s;
         sims[j][i] = s;
     }
+
+    delete[] userA;
+    delete[] userB;
 }
 
 double cosine_similarity(double *A, double *B, unsigned long size) {
